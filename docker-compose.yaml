@@ -1,0 +1,38 @@
+version: "3"
+
+services:
+  duckdns:
+    image: linuxserver/duckdns
+    container_name: duckdns
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Mazatlan
+      - SUBDOMAINS=SUBDOMAIN
+      - TOKEN=TOKEN
+      - LOG_FILE=false
+    volumes:
+      - /path/to/appdata/config:/config
+    restart: unless-stopped
+    
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+      - "80:80/tcp"
+      - "443:443/tcp"
+    environment:
+      TZ: 'America/Mazatlan'
+      # WEBPASSWORD: 'set a secure password here or it will be random'
+    volumes:
+       - './etc-pihole/:/etc/pihole/'
+       - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    dns:
+      - 127.0.0.1
+      - 1.1.1.1
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
